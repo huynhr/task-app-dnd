@@ -5,6 +5,7 @@ import { DragDropContext } from 'react-beautiful-dnd';
 import '@atlaskit/css-reset';
 import initialData from './initial-data';
 import Column from './Column';
+import Done from './done';
 
 const Container = styled.div`
   display: flex;
@@ -52,6 +53,29 @@ class App extends React.Component {
         },
       }
       this.setState(newState);
+    } else if (destination.droppableId === 'column-done') {
+      const startTaskIds = Array.from(start.taskIds);
+      startTaskIds.splice(source.index, 1);
+      const newStartColumn = {
+        ...start,
+        taskIds: startTaskIds,
+      }
+
+      const doneTaskIds = Array.from(this.state.done);
+      doneTaskIds.splice(destination.index, 0, draggableId);
+      const newDoneList = [...doneTaskIds];
+
+      const newState = {
+        ...this.state,
+        columns: {
+          ...this.state.columns,
+          [newStartColumn.id]: newStartColumn,
+        },
+        done: newDoneList,
+      }
+
+      this.setState(newState);
+
     } else {
       const sourceTaskIds = Array.from(start.taskIds);
       sourceTaskIds.splice(source.index, 1);
@@ -95,6 +119,7 @@ class App extends React.Component {
               return <Column key={column.id} column={column} tasks={tasks} />;
             })
           }
+          <Done doneItems={this.state.done} />
         </Container>
       </DragDropContext>
     );
